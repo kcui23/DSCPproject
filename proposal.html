@@ -36,9 +36,24 @@
         </div>
         <br>
         <h3>Code to get data</h3>
-        <pre><code class="language-bash">#!/bin/bash                                                                     
+        <p>Here is the code to get data from the Gutenberg ebooks project. We use the <code>wget</code> command to download the data. The code is written in bash and is run on the cluster.</p>
+        <h5>- submit.sh</h5>
+        <pre><code class="language-bash">#!/bin/bash
+
+rm -rf slurm_out;mkdir -p slurm_out
+rm -rf data;mkdir -p data
+
+sbatch --output="slurm_out/slurm-%A_%a.out" \
+        --error="slurm_out/slurm-%A_%a.err" \
+        --array 1-3000 getData.sh</code></pre>
+        <br>
+        <h5>- getData.sh</h5>
+        <pre><code class="language-bash">#!/bin/bash
 
 base_url="http://aleph.gutenberg.org"
+n=$SLURM_ARRAY_TASK_ID
+start=$(echo "20 * ($n - 1) + 10001" | bc)
+end=$(echo "20 * $n + 10000" | bc)
 
 download_file() {
     dir1=$(printf "%d" $(($1/10000)))
@@ -47,17 +62,16 @@ download_file() {
     dir4=$(printf "%d" $(($1%100/10)))
 
     for suffix in "" "-0" "-8"; do
-        url="${base_url}/${dir1}/${dir2}/${dir3}/${dir4}/${1}/${1}${suffix}.txt\"
+        url="${base_url}/${dir1}/${dir2}/${dir3}/${dir4}/${1}/${1}${suffix}.txt"
         wget --spider $url
 
         if [ $? -eq 0 ]; then
-            wget $url
-            break
+            wget -P data $url
+        break
         fi
     done
 }
-
-for i in $(seq 10000 71000); do
+for i in $(seq $start $end);do
     download_file $i
 done</code></pre>
         <br>

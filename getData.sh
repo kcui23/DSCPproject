@@ -2,8 +2,8 @@
 
 base_url="http://aleph.gutenberg.org"
 n=$SLURM_ARRAY_TASK_ID
-start= echo "10 * ($n - 1) + 10001"
-end= echo "10 * $n + 10000"
+start=$(echo "20 * ($n - 1) + 10001" | bc)
+end=$(echo "20 * $n + 10000" | bc)
 
 download_file() {
     dir1=$(printf "%d" $(($1/10000)))

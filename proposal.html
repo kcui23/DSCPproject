@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Project proposal</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .external-link::after {
+            content: "\f35d";
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            margin-left: 5px;
+            font-size: 0.8em;
+        }
+        .members {
+            font-size: 1.25em;
+            margin-top: 5px;
+            font-weight: normal;
+            color: #555;
+        }
+        p {
+            font-size: 1.1em;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism.min.css">
+</head>
+<body>
+    <div class="container">
+        <br>
+        <h1>Project proposal</h1>
+        <div class="members">
+            Project Group 8: Baiheng Chen, Kai Cui, Tuocheng Chen, Yuda Ding, Ziyi Song
+        </div>
+        <br>
+        <h3>Code to get data</h3>
+        <pre><code class="language-bash">#!/bin/bash                                                                     
+
+base_url="http://aleph.gutenberg.org"
+
+download_file() {
+    dir1=$(printf "%d" $(($1/10000)))
+    dir2=$(printf "%d" $(($1%10000/1000)))
+    dir3=$(printf "%d" $(($1%1000/100)))
+    dir4=$(printf "%d" $(($1%100/10)))
+
+    for suffix in "" "-0" "-8"; do
+        url="${base_url}/${dir1}/${dir2}/${dir3}/${dir4}/${1}/${1}${suffix}.txt\"
+        wget --spider $url
+
+        if [ $? -eq 0 ]; then
+            wget $url
+            break
+        fi
+    done
+}
+
+for i in $(seq 10000 71000); do
+    download_file $i
+done</code></pre>
+        <br>
+        <h3>Descriptions of the variables</h3>
+
+
+        <h3>Link to the Github repository</h3>
+        <p>You can find our project here: <a href="https://github.com/kcui23/stat605_final_project/" target="_blank" class="external-link">https://github.com/kcui23/stat605_final_project/</a></p>
+        <br>
+        <br>
+        <br>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-bash.min.js"></script>
+</body>
+</html>

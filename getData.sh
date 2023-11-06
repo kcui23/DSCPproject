@@ -1,6 +1,9 @@
 #!/bin/bash
 
 base_url="http://aleph.gutenberg.org"
+n=$SLURM_ARRAY_TASK_ID
+start= echo "10 * ($n - 1) + 10001"
+end= echo "10 * $n + 10000"
 
 download_file() {
     dir1=$(printf "%d" $(($1/10000)))
@@ -13,12 +16,11 @@ download_file() {
         wget --spider $url
 
         if [ $? -eq 0 ]; then
-            wget $url
-            break
+            wget -P data $url
+	    break
         fi
     done
 }
-
-for i in $(seq 10000 71000); do
+for i in $(seq $start $end);do
     download_file $i
 done

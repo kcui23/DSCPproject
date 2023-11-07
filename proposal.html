@@ -75,9 +75,25 @@ for i in $(seq $start $end);do
     download_file $i
 done</code></pre>
         <br>
-        <h3>Descriptions of the variables</h3>
-
-
+        <h3>About our dataset</h3>
+        <h4>Dataset Overview</h4>
+        <p>We are using text data from e-books, sourced from http://aleph.gutenberg.org. We have extracted about 60,000 e-books for certain statistical analyses. We used 3000 jobs for parallel downloading, ultimately obtaining 59,180 TXT files, totaling 22GB.It would be an intersting and challenging work to implement some valuable analysis with HPC on such a huge dataset.</p>
+        <h4>Descriptions of the variables</h4>
+        <p>All we have are text variables. Specifically, we have a fixed format head of each ebook including some basic information, here's an example:</p>
+        <br>
+        Title: Apocolocyntosis
+        <br>
+        Author: Lucius Seneca
+        <br>
+        Release Date: November 10, 2003 [EBook #10001]
+        <br>
+        [Date last updated: April 9, 2005]
+        <br>
+        Language: English
+        <br>
+        Character set encoding: ASCII
+        <br>
+        <p>And the whole books will go after the heads.</p>
         <h3>Link to the Github repository</h3>
         <p>You can find our project here: <a href="https://github.com/kcui23/stat605_final_project/" target="_blank" class="external-link">https://github.com/kcui23/stat605_final_project/</a></p>
         <br>

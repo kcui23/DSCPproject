@@ -1,12 +1,17 @@
-#!/bin/bash
+#!/bin/bash                                                                                             
+if [ ! -d "packages" ]; then
+    mkdir vocab
+    mkdir total
+    mv NRC-Lexicon.txt vocab
+    tar -xzf R413.tar.gz
+    tar -xzf packages.tar.gz
+fi
 
-#tar -xzf R413.tar.gz
+export PATH=$PWD/R/bin:$PATH
+export RHOME=$PWD/R
+export R_LIBS=$PWD/packages
 
-#export PATH=$PWD/R/bin:$PATH
-#export RHOME=$PWD/R
-#export R_LIBS=$PWD/packages
-
-#Rscript hw4.R $1 $2
+Rscript main.R
 
 
 base_url="http://aleph.gutenberg.org"
@@ -26,7 +31,7 @@ download_file() {
 
         if [ $? -eq 0 ]; then
             wget $url
-	        break
+	    break
         fi
     done
 }
@@ -35,19 +40,11 @@ for i in $(seq $start $end);do
 done
 
 
-my_func() {
-    echo "$(wc $1)"
-}
-
-count=0
 for file in *.txt; do
     if [[ -f "$file" ]]; then
-        my_func "$file"
-	((count++))
+        Rscript main.R $file
     fi
 done
 
-echo "Total .txt files: $count"
 
-# remove all raw datas so they will not be sent back to learn
 rm *.txt

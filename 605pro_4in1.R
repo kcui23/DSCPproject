@@ -2,7 +2,7 @@ library(tm)
 library(quanteda)
 library(stringr)
 library(dplyr)
-library(tidyr)
+library(reshape)
 library(tidytext)
 
 #########
@@ -117,11 +117,11 @@ write.csv(results_df, gradename, row.names = FALSE, quote = FALSE)
 
 # 读取情感词典
 emotion_lexicon <- read.table("./NRC-Lexicon.txt", header = FALSE, sep = "\t", col.names = c("word", "emotion", "score"))
-emotion_lexicon_wide <- emotion_lexicon %>%
-  spread(emotion, score)
+emotion_lexicon_wide <- cast(emotion_lexicon, word ~ emotion, value = "score")
 # 处理文本数据
-text_df <- data.frame(text = text, stringsAsFactors = FALSE) %>%
-  unnest_tokens(word, text)
+text <- data.frame(text = text, stringsAsFactors = FALSE)
+words <- unlist(strsplit(text$text, " "))
+text_df <- data.frame(word = words)
 # 匹配情感并计算频率
 emotion_freq <- text_df %>%
   inner_join(emotion_lexicon_wide, by = "word") %>%

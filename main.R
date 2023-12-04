@@ -134,7 +134,11 @@ processFile <- function(nameinput, truedir) {
     #####情感分析
     
     # 读取情感词典
+<<<<<<< HEAD
     emotion_lexicon <- read.table("./vocab/NRC-Lexicon.txt", header = FALSE, sep = "\t", col.names = c("word", "emotion", "score"))
+=======
+    emotion_lexicon <- read.table("./NRC-Lexicon.txt", header = FALSE, sep = "\t", col.names = c("word", "emotion", "score"))
+>>>>>>> 1105fd5beb9fbb413deb139ccc5c1d866b46624a
     emotion_lexicon_wide <- cast(emotion_lexicon, word ~ emotion, value = "score")
     # 处理文本数据
     text <- data.frame(text = text, stringsAsFactors = FALSE)
@@ -155,4 +159,8 @@ processFile <- function(nameinput, truedir) {
   }
 }
 
+<<<<<<< HEAD
 processFile(nameinput, truedir)
+=======
+processFile(nameinput, truedir)
+>>>>>>> 1105fd5beb9fbb413deb139ccc5c1d866b46624a

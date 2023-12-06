@@ -1,0 +1,118 @@
+---
+title: "Yuda 605final"
+output: html_document
+date: "2023-12-05"
+---
+
+```{r}
+rm(list = ls())
+library(cluster)
+library(factoextra)
+library(tidyverse)
+library(dplyr)
+library(readr)
+library(reshape2)
+library(dbscan)
+data_total <- read_csv('total_merged.csv')
+```
+
+```{r}
+#Remove NA and some wierd numbers in the trust column
+data_total[5:18] <- lapply(data_total[5:18], as.numeric)
+data_total <- na.omit(data_total)
+data_total <- data_total[!grepl(",",data_total$trust),]
+```
+
+```{r,fig.height=7,fig.width=7}
+#情感得分分布
+emotion_hist <-melt(data_total[,9:18], id.vars = NULL, variable.name = "emotion", value.name = "value")
+p1 <- ggplot(emotion_hist)+
+  geom_density(aes(x = value,col = emotion))+
+  facet_wrap(~emotion, ncol = 2)+
+  theme_bw()
+#各情感占比
+emotion_pie <- emotion_hist %>%
+  group_by(emotion) %>%
+  summarize(mean = mean(value))
+p2 <- ggplot(emotion_pie) +
+  geom_bar(aes(x = "", y = mean, fill = emotion), width = 1, stat = 'identity') +
+  coord_polar("y") +
+  theme_void()+
+  theme(
+  legend.text = element_text(color = "white")) +
+  guides(
+    fill = guide_legend(
+      title.theme = element_text(size = 10), # Adjust the size of the legend title
+      label.theme = element_text(size = 15), # Adjust the size of the legend labels
+      keywidth = 2, # Adjust the width of the legend keys
+      keyheight = 2 # Adjust the height of the legend keys
+    ))
+
+p1
+p2
+ggsave("emotionhist.png", plot = p1, width = 10, height = 8, dpi = 300)
+ggsave("emotionpie.png", plot = p2, width = 10, height = 8, dpi = 300)
+```
+
+```{r,fig.height=7,fig.width=7}
+#作品复杂度分布
+p3 <- ggplot(data_total)+
+  geom_density(aes(x = `F-KGrade`))+
+  theme_bw()
+p3
+ggsave("complexhist.png", plot = p3, width = 10, height = 8, dpi = 300)
+```
+```{r}
+#聚类分析
+#DBSCAN
+set.seed(123)
+data_dbscan <- data.frame(scale(data_total[,9:18]))
+kNNdistplot(data_dbscan, k = 9)
+dbscan_result <- dbscan(data_dbscan, eps = 1.7, minPts = 10)
+dbscan_result$cluster
+max(dbscan_result$cluster)
+sum(dbscan_result$cluster==0)/16975
+```
+```{r}
+#K-MEANS+肘部曲线
+k_values <- 1:5
+wcss <- vector("numeric", length(k_values))
+for (i in 1:length(k_values)) {
+  k <- k_values[i]
+  kmeans_result <- kmeans(data_dbscan, centers = k)
+  wcss[i] <- kmeans_result$tot.withinss
+}
+elbow_data <- data.frame(K = k_values, WCSS = wcss)
+p4 <- ggplot(elbow_data, aes(x = K, y = WCSS)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Number of Clusters (K)", y = "Within-Cluster Sum of Squares")+
+  theme_bw()
+p4
+ggsave("elbow.png", plot = p4, width = 10, height = 8, dpi = 300)
+kmeans_result <- kmeans(data_dbscan, centers = 2)
+for(i in 1:2){
+  print(length(kmeans_result$cluster[kmeans_result$cluster==i])/length(kmeans_result$cluster))
+}
+```
+
+```{r}
+#按照聚类后标签查看情感占比
+data_after <- cbind(data_total,kmeans_result$cluster)[,9:19]
+colnames(data_after)[ncol(data_after)] <- 'Cluster'
+data_after_pie <- data_after %>%
+  group_by(Cluster) %>%
+  summarize_all(mean)
+data_after_pie <- melt(data_after_pie[,-1], id.vars = NULL, variable.name = "emotion", value.name = "mean")
+data_after_pie$Cluster <- rep(c(1,2), 10)
+p5 <- ggplot(data_after_pie) +
+  geom_bar(aes(x = "", y = mean, fill = emotion), width = 1, stat = 'identity') +
+  coord_polar("y") +
+  facet_wrap(~Cluster)+
+  theme_void()
+p5
+ggsave("clusterpie.png", plot = p5, width = 10, height = 8, dpi = 300)
+
+write_csv(cbind(data_total,kmeans_result$cluster), 'data_clustered.csv')
+```
+
